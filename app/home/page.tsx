@@ -10,7 +10,10 @@ import { Form, FormField, FormItem } from "@/components/ui/form";
 import { generateMnemonic, mnemonicToSeedSync } from "bip39";
 import { derivePath } from "ed25519-hd-key";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import nacl from "tweetnacl";
+import bs58 from 'bs58';
+import { KeyIcon } from "lucide-react";
+import { EyeClosedIcon } from "@radix-ui/react-icons";
 
 const seed_phrase_form = z.object({
     mnemonic: z.string()
@@ -23,6 +26,11 @@ const derivation_paths = {
 
 }
 
+type Wallet = {
+    publickey: string,
+    privatekey: string,
+}[];
+
 export default function Home(){
     const form_details = useForm<FormValues>({
         resolver: zodResolver(seed_phrase_form),
@@ -32,6 +40,9 @@ export default function Home(){
     });
 
     const [words, setWords] = useState<string[]>([]);
+    const [mnemonic,setMnemonic] = useState<string>("");
+    const [index,setIndex] = useState<number>(0);
+    const [wallet,setWallet] = useState<Wallet>([]);
 
     function onSubmit(form_values: FormValues){
         let { mnemonic } = form_values;
@@ -40,8 +51,29 @@ export default function Home(){
             mnemonic = createSeed();
         }
 
+        setMnemonic(mnemonic);
+
         const words = mnemonic.split(" ");
         setWords(words);
+    }
+
+    async function generateWallet(){
+        const seed = mnemonicToSeedSync(mnemonic);
+        let path = derivation_paths.solana;
+        let i = path.indexOf('x');
+        let prev = path.substring(0,i);
+        let next = path.substring(i+1);
+        const derived_seed = derivePath(prev+`${index}`+next,seed.toString()).key;
+        const keypair = nacl.sign.keyPair.fromSeed(derived_seed);
+        const public_key = keypair.publicKey;
+        const private_key = keypair.secretKey;
+
+        setWallet((wallet) => [...wallet, {
+            publickey: bs58.encode(public_key),
+            privatekey: bs58.encode(private_key),
+        }]);
+
+        setIndex((index) => index+1);
     }
 
     const { control, handleSubmit, formState:{isDirty, isLoading, isSubmitting}} = form_details;
@@ -70,7 +102,13 @@ export default function Home(){
                         <Button
                         type="submit"
 
-                        >Add</Button>
+                        >Add mnemonic</Button>
+                        <Button
+                        type="button"
+                        onClick={generateWallet}
+                        >
+                        Generate wallet
+                        </Button>
                         </div>
                     </form>
                 </Form>
@@ -81,13 +119,34 @@ export default function Home(){
                     {
                         words.map((word)=>{
                             return(
-                                <div className="text-center bg-slate-300 dark:bg-slate-900 p-2 rounded-md">
+                                <div 
+                                key={word}
+                                className="text-center bg-slate-300 dark:bg-slate-900 p-2 rounded-md">
                                     {word}
                                 </div>
                             )
                         })
                     }
                 </div>
+                }
+            </div>
+            <div className="full">
+                {
+                    wallet.length > 0 && 
+                    <div>
+                        {
+                            wallet.map((kp) => {
+                                return (
+                                    <div 
+                                    className="text-center bg-slate-300 dark:bg-slate-900 p-4 m-4 border-2"
+                                    key={kp.publickey}>
+                                        <div className="flex space-x-4 my-2"><KeyIcon/><p>{kp.publickey}</p></div>
+                                        <div className="flex space-x-4"><EyeClosedIcon/><p>{kp.privatekey}</p></div>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
                 }
             </div>
         </div>
