@@ -15,6 +15,7 @@ import bs58 from 'bs58';
 import { KeyIcon } from "lucide-react";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/hooks/use-toast";
+import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 const seed_phrase_form = z.object({
     mnemonic: z.string()
@@ -91,6 +92,10 @@ export default function Home(){
 
     return (
         <div className="flex flex-col items-center mx-48 mt-24 space-y-12">
+            <div className="flex justify-between w-full">
+                <WalletMultiButton/>
+                <WalletDisconnectButton/>
+            </div>
             <div className="w-full">
                 <Form {...form_details}>
                     <form onSubmit={handleSubmit(onSubmit)}>
