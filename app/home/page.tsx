@@ -14,6 +14,7 @@ import nacl from "tweetnacl";
 import bs58 from 'bs58';
 import { KeyIcon } from "lucide-react";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
+import { useToast } from "@/hooks/use-toast";
 
 const seed_phrase_form = z.object({
     mnemonic: z.string()
@@ -32,6 +33,7 @@ type Wallet = {
 }[];
 
 export default function Home(){
+    const { toast } = useToast();
     const form_details = useForm<FormValues>({
         resolver: zodResolver(seed_phrase_form),
         defaultValues: {
@@ -58,6 +60,15 @@ export default function Home(){
     }
 
     async function generateWallet(){
+        if(mnemonic.split(" ").length != 12){
+            toast({
+                variant: "destructive",
+                title: "Invalid mnemonic",
+                description: "Make sure to generate a seed phrase first!!"
+            })
+
+            return;
+        }
         const seed = mnemonicToSeedSync(mnemonic);
         let path = derivation_paths.solana;
         let i = path.indexOf('x');
