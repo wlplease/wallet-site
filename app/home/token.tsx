@@ -112,7 +112,7 @@ export default function Token(){
           <Form {...form}>
             <form onSubmit={handleSubmit(on_submit)}>
               <CardContent
-              className="grid grid-cols-2 gap-4 space-x-2 "
+              className="grid lg:grid-cols-2 grid-cols-1 gap-4 space-x-2 "
               >
                 <FormField
                 control={control}
