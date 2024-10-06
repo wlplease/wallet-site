@@ -1,7 +1,7 @@
 'use client'
 
 import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Home(){
     const wallet = useWallet();

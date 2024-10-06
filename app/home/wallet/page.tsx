@@ -15,7 +15,7 @@ import bs58 from 'bs58';
 import { KeyIcon } from "lucide-react";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/hooks/use-toast";
-import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
 
 const seed_phrase_form = z.object({
     mnemonic: z.string()
@@ -71,10 +71,10 @@ export default function Wallet(){
             return;
         }
         const seed = mnemonicToSeedSync(mnemonic);
-        let path = derivation_paths.solana;
-        let i = path.indexOf('x');
-        let prev = path.substring(0,i);
-        let next = path.substring(i+1);
+        const path = derivation_paths.solana;
+        const i = path.indexOf('x');
+        const prev = path.substring(0,i);
+        const next = path.substring(i+1);
         const derived_seed = derivePath(prev+`${index}`+next,seed.toString()).key;
         const keypair = nacl.sign.keyPair.fromSeed(derived_seed);
         const public_key = keypair.publicKey;
@@ -88,7 +88,7 @@ export default function Wallet(){
         setIndex((index) => index+1);
     }
 
-    const { control, handleSubmit, formState:{isDirty, isLoading, isSubmitting}} = form_details;
+    const { control, handleSubmit } = form_details;
 
     return (
         <div className="w-full flex flex-col items-center space-y-12">

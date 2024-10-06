@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SparklesPreview } from "@/components/sparke";
 
 export default function Home() {
   return (
